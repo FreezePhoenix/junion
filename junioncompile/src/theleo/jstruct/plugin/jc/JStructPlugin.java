@@ -52,11 +52,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.processing.Processor;
@@ -218,7 +214,10 @@ public class JStructPlugin implements Plugin {
 		}
 
 		@Override
-		public void compile(List<JavaFileObject> sourceFileObjects, List<String> classnames, Iterable<? extends Processor> processors) {
+		public void compile(Collection<JavaFileObject> sourceFileObjects,
+							Collection<String> classnames,
+							Iterable<? extends Processor> processors,
+							Collection<String> addModules) {
 			Log.err("JAVA COMPILER WRAPPER " , sourceFileObjects.size());
 			Log.err("Class Names " , classnames + ", " + classnames.size());
 			
@@ -226,17 +225,17 @@ public class JStructPlugin implements Plugin {
 			Log.err("DJAVA_EXT_DIRS " , options.get(Option.DJAVA_EXT_DIRS));
 			Log.err("ENDORSEDDIRS " , options.get(Option.ENDORSEDDIRS));
 			Log.err("EXTDIRS " , options.get(Option.EXTDIRS));
-			Log.err("SourcePath " , options.get(Option.SOURCEPATH));
+			Log.err("SourcePath " , options.get(Option.SOURCE_PATH));
 			Log.err("SourceFile " , options.get(Option.SOURCEFILE));
 			Log.err("Source " , options.get(Option.SOURCE));
 			Log.err("D " , options.get(Option.D));
-			Log.err("CP " , options.get(Option.CP));
-			Log.err("BOOTCLASSPATH " , options.get(Option.BOOTCLASSPATH));
+			Log.err("CP " , options.get(Option.CLASS_PATH));
+			Log.err("BOOTCLASSPATH " , options.get(Option.BOOT_CLASS_PATH));
 			Log.err("XBOOTCLASSPATH " , options.get(Option.XBOOTCLASSPATH));
 			Log.err("XBOOTCLASSPATH_PREPEND " , options.get(Option.XBOOTCLASSPATH_PREPEND));
 			Log.err("XBOOTCLASSPATH_APPEND " , options.get(Option.XBOOTCLASSPATH_APPEND));
-			Log.err("CLASSPATH " , options.get(Option.CLASSPATH));
-			Log.err("PROCPATH " , options.get(Option.PROCESSORPATH));
+			Log.err("CLASSPATH " , options.get(Option.CLASS_PATH));
+			Log.err("PROCPATH " , options.get(Option.PROCESSOR));
 			Log.err("VERSION " , options.get(Option.VERSION));
 			
 //			for(String o : options.keySet())
@@ -259,45 +258,41 @@ public class JStructPlugin implements Plugin {
 			ArrayList<JavaFileObject> translated = new ArrayList<>(sourceFileObjects.size());
 			
 			HashMap<String, WrappedSourceFile> sourceFiles = new HashMap<>();
-			
-			try {
-				for(int i = 0; i < sourceFileObjects.size(); i++) {
 
-						JavaFileObject jfo = sourceFileObjects.get(i);
-						Log.err("JAVA COMPILER WRAPPER ", jfo + ", " + jfo.getClass());
-						Log.err(" SIMPLE NAME ", jfo.getName());
-						
-						if(jfo.getKind() == JavaFileObject.Kind.SOURCE) {
-							CharSequence seq = jfo.getCharContent(true);
-							WrappedSourceFile wf = new WrappedSourceFile(jfo);
-							wf.setContent(seq);
-							wf.setPackageName(SourceCompiler.extractPackageName(seq));
-							
-							Log.err(" PACKAGE ", wf.packageName);
-							
-							sourceFiles.put(new File(jfo.toUri()).getCanonicalPath(), wf);
-							
-							File file = new File(jfo.toUri()).getParentFile();
-							if(file != null) {
-								if(wf.packageName == null) {
-									sourcePathMap.add(file.getCanonicalPath());
-								}
-								else {
-									int dot1 = 1+SourceCompiler.count(wf.packageName, '.');
-									Log.err("DOTS ", dot1);
-									Log.err("F~ILE  ", file);
-									for(int n = 0; n < dot1 && file != null; n++)
-										file = file.getParentFile();
-									if(file != null) sourcePathMap.add(file.getCanonicalPath());
-								}
+			try {
+				for (JavaFileObject jfo : sourceFileObjects) {
+					Log.err("JAVA COMPILER WRAPPER ", jfo + ", " + jfo.getClass());
+					Log.err(" SIMPLE NAME ", jfo.getName());
+
+					if (jfo.getKind() == JavaFileObject.Kind.SOURCE) {
+						CharSequence seq = jfo.getCharContent(true);
+						WrappedSourceFile wf = new WrappedSourceFile(jfo);
+						wf.setContent(seq);
+						wf.setPackageName(SourceCompiler.extractPackageName(seq));
+
+						Log.err(" PACKAGE ", wf.packageName);
+
+						sourceFiles.put(new File(jfo.toUri()).getCanonicalPath(), wf);
+
+						File file = new File(jfo.toUri()).getParentFile();
+						if (file != null) {
+							if (wf.packageName == null) {
+								sourcePathMap.add(file.getCanonicalPath());
+							} else {
+								int dot1 = 1 + SourceCompiler.count(wf.packageName, '.');
+								Log.err("DOTS ", dot1);
+								Log.err("F~ILE  ", file);
+								for (int n = 0; n < dot1 && file != null; n++)
+									file = file.getParentFile();
+								if (file != null) sourcePathMap.add(file.getCanonicalPath());
 							}
-							
-							translated.add(wf);
-							javaFiles.add(wf);
 						}
-						else translated.add(jfo);						
+
+						translated.add(wf);
+						javaFiles.add(wf);
+					} else translated.add(jfo);
 				}
-				
+
 //				org.eclipse.jdt.core.ICompilationUnit[] units = from(javaFiles);
 				String sourcePaths[] = sourcePathMap.toArray(new String[sourcePathMap.size()]);
 				Log.err("SOURCE PATHS ", Arrays.toString(sourcePaths));
@@ -396,7 +391,7 @@ public class JStructPlugin implements Plugin {
 			}			
 			Log.err("Going to Compile");
 			
-			super.compile(List.from(translated), classnames, processors); 
+			super.compile(List.from(translated), classnames, processors, addModules);
 		}
 		
 	}
