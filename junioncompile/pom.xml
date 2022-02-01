@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
  <modelVersion>4.0.0</modelVersion>
 
- <groupId>com.github.tehleo</groupId>
+ <groupId>com.github.FreezePhoenix</groupId>
  <artifactId>junionc</artifactId>
  <version>1.1.0</version>
  <packaging>jar</packaging>
 
  <name>JUnionc</name>
  <description>Delivers struct types to Java programming language.</description>
- <url>https://github.com/TehLeo/junion</url>
+ <url>https://github.com/FreezePhoenix/junion</url>
  <licenses>
   <license>
    <name>BSD-3-Clause</name>
@@ -20,11 +20,16 @@
    <name>Juraj Papp</name>
    <email>jurajpapp7@gmail.com</email>
   </developer>
+	 
+  <developer>
+   <name>FreezePhoenix</name>
+   <email>ariaharper0@gmail.com</email>
+  </developer>
  </developers>
  <scm>
-  <connection>scm:git:git://github.com/TehLeo/junion.git</connection>
-  <developerConnection>scm:git:ssh://github.com:TehLeo/junion.git</developerConnection>
-  <url>https://github.com/TehLeo/junion/tree/master</url>
+  <connection>scm:git:git://github.com/FreezePhoenix/junion.git</connection>
+  <developerConnection>scm:git:ssh://github.com:FreezePhoenix/junion.git</developerConnection>
+  <url>https://github.com/FreezePhoenix/junion/tree/master</url>
  </scm>
 
  <distributionManagement>
@@ -44,7 +49,7 @@
 
  <dependencies>
 	<dependency>
-		<groupId>com.github.tehleo</groupId>
+		<groupId>com.github.FreezePhoenix</groupId>
 		<artifactId>junion</artifactId>
 		<version>1.1.0</version>
 	</dependency>
